@@ -9,8 +9,7 @@ namespace MainProcess
 {
     class CreateTables
     {
-        /// Ну дела
-        /// </summary>
+
         public static void TablesCreate()
         {
             string connectionString = @"Data Source=(local)\SERVER2012;
@@ -18,9 +17,9 @@ namespace MainProcess
                             Integrated Security=True";
             SqlCommand command;
             SqlDataReader reader;
-            string queryString =  "CREATE TABLE [dbo].[AllQueryTable] ( ID  int NOT NULL identity(1,1),CPUTime bigint NULL,ExecTime bigint NULL,QueryText Text NULL, ObjType nvarchar(16) NULL, ExecCount int NULL, query_plan XML NULL,query_hash binary(16) CONSTRAINT ID_AllQueryConstraint PRIMARY KEY(ID) ) ";
+            string queryString =  "CREATE TABLE [dbo].[AllQueryTable] ( ID  int NOT NULL identity(1,1),CPUTime bigint NULL,ExecTime bigint NULL,QueryText Text NULL, ObjType nvarchar(16) NULL, ExecCount int NULL, query_plan XML NULL,query_hash binary(8) NULL CONSTRAINT ID_AllQueryConstraint PRIMARY KEY(ID) ) ";
             string queryString2 = "DROP TABLE AvgQueryTable " +
-                                  "CREATE TABLE [dbo].[AvgQueryTable] ( ID  int NOT NULL identity(1,1),QueryText Text NULL, CPUTime bigint NULL,ExecTime bigint NULL,Median float NULL,Disp float NULL,Count int NULL,query_plan XML NULL, CONSTRAINT ID_AvgQueryConstraint PRIMARY KEY(ID) ) ";
+                                  "CREATE TABLE [dbo].[AvgQueryTable] ( ID  int NOT NULL identity(1,1),QueryText Text NULL, CPUTime bigint NULL,ExecTime bigint NULL,Median float NULL,Disp float NULL,Count int NULL,query_plan XML NULL,query_hash binary(8) NULL CONSTRAINT ID_AvgQueryConstraint PRIMARY KEY(ID) ) ";
             string queryString3 = "CREATE TABLE [dbo].[AvgTimeQueryTable] ( ID  int NOT NULL identity(1,1) ,QueryText Text NULL, CPUTime bigint NULL,ExecTime bigint NULL,Median int NULL,Disp int NULL,Count int NULL,query_plan XML NULL, CONSTRAINT ID_AvgTimeQueryConstraint PRIMARY KEY(ID) ) ";
 
             using (SqlConnection connection = new SqlConnection(connectionString))

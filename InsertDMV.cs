@@ -19,22 +19,32 @@ namespace MainProcess
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    long sum = 0;
-                    for (int i = 0; i < s.QueryHash.Count(); i++)
-                    {
-                        sum = (int)s.QueryHash[0] * (int)(Math.Pow(16, 14));
-                    }
-                    string SetQuery = "INSERT INTO dbo.AllQueryTable( CPUTime,ExecTime,QueryText, ObjType, ExecCount, query_plan, query_hash ) " +
+                    //unsinged long sum = 0;
+                    Console.WriteLine((Byte[])s.QueryHash);
+                    string HashPlan="";
+                    HashPlan = HashPlan + s.QueryHash[0];
+                    HashPlan = HashPlan + s.QueryHash[1].ToString();
+                    HashPlan = HashPlan + s.QueryHash[2].ToString();
+                    HashPlan = HashPlan + s.QueryHash[3].ToString();
+                    HashPlan = HashPlan + s.QueryHash[4].ToString();
+                    HashPlan = HashPlan + s.QueryHash[5].ToString();
+                    HashPlan = HashPlan + s.QueryHash[6].ToString();
+                    HashPlan = HashPlan + s.QueryHash[7].ToString();
+                    string SetQuery = "DECLARE @BinaryNumber binary(8) " +
+                                      "SET @BinaryNumber =  CAST(" + s.QueryHash[0] + " AS binary(1))+CAST(" + s.QueryHash[1] + " AS binary(1))+CAST(" + s.QueryHash[2] + " AS binary(1))+CAST(" + s.QueryHash[3] + " AS binary(1))+" +
+                                                           "CAST(" + s.QueryHash[4] + " AS binary(1))+CAST(" + s.QueryHash[5] + " AS binary(1))+CAST(" + s.QueryHash[6] + " AS binary(1))+CAST(" + s.QueryHash[7] + " AS binary(1)) " +
+                                     "INSERT INTO dbo.AllQueryTable( CPUTime,ExecTime,QueryText, ObjType, ExecCount, query_plan, query_hash ) " +
                                       "VALUES ( " +
-                                          "" + s.CPUTime.ToString() + "," +
-                                          "" + s.CPUTime.ToString() + "," +
-                                          "'" + s.QueryText + "'," +
-                                          "N'" + s.ObjType + "'," +
-                                          "" + s.ExecCount + "," +
-                                          "'"+ null +"', " +
-                                          "" + sum + " " +
+                                          "" + s.CPUTime.ToString() + "," + //
+                                          "" + s.CPUTime.ToString() + "," +// "" + s.CPUTime.ToString() + "," +
+                                          "'" + s.QueryText + "'," +// "'" + s.QueryText + "'," +
+                                          "N'" + s.ObjType + "'," +// "N'" + s.ObjType + "'," +
+                                          "" + s.ExecCount + "," +// "" + s.ExecCount + "," +
+                                          "'" + s.QueryPlan + "', " +// "'"+ s.QueryPlan + "', " +
+                                          "@BinaryNumber" +
                                           ")";
-                    Console.WriteLine(SetQuery);
+
+                    // Console.WriteLine(SetQuery);
                     if (BoolConnect == 0)
                     {
                         Console.WriteLine("Insert into All Connection Success \n");
@@ -49,7 +59,6 @@ namespace MainProcess
                         {
 
                         }
-                        Console.WriteLine("Execute query {0}", SetQuery.Substring(80,80));
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("ExecuteQuery: Status -----> Complete \n");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -109,12 +118,20 @@ namespace MainProcess
             string connectionString = @"Data Source=(local)\SERVER2012;
                             Initial Catalog=AdventureWorks2012;
                             Integrated Security=True";
-            string DMVString ="INSERT INTO[AvgQueryTable] ([QueryText], [CPUTime], [ExecTime], [Median], [Disp], [Count], [query_plan]) " +
-                              "SELECT DISTINCT CAST(aqt.QueryText as Varchar(MAX)), " +
-                              "SUM(aqt.CPUTime)/SUM(ExecCount), SUM(aqt.CPUTime)/SUM(ExecCount), 0, 0, SUM(ExecCount), aqt.query_plan " +
-                              "FROM dbo.AllQueryTable aqt " +
-                              "GROUP BY CAST(aqt.QueryText as Varchar(MAX)) ";
-            Console.WriteLine(DMVString);
+            string DMVString = @"INSERT INTO[AvgQueryTable]([QueryText], [CPUTime], [ExecTime], [Median], [Disp], [Count], [query_plan],[query_hash]) 
+                                SELECT DISTINCT CAST(aqt.QueryText as Varchar(MAX)),
+                                             SUM(aqt.CPUTime)/Count(ObjType),
+                                             SUM(aqt.CPUTime)/Count(ObjType),
+                                             Power(2,2),
+			                                 0,
+                                             Count(ObjType),
+			                                 null,
+			                                 aqt.query_hash FROM dbo.AllQueryTable aqt
+                                             WHERE aqt.query_hash IN (SELECT DISTINCT aqt.query_hash FROM dbo.AllQueryTable aqt
+                                WHERE aqt.query_hash NOT IN (SELECT DISTINCT aqt2.query_hash FROM dbo.AvgQueryTable aqt2))
+                                GROUP BY CAST(aqt.QueryText as Varchar(MAX)),aqt.query_hash";
+
+            //Console.WriteLine(DMVString);
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 Console.WriteLine("Avg Insert Connection Success \n");
@@ -209,7 +226,13 @@ namespace MainProcess
             {
                DMVString = "UPDATE dbo.AvgQueryTable " +
                             "SET AvgQueryTable.Median = " + Median[i][Median[i].Count / 2]/ExecCount[i][ExecCount[i].Count/2] + ", " +
-                            "AvgQueryTable.Disp = " + (int)Disp[i] / ExecCount[i][ExecCount[i].Count / 2] + " " +
+                            "AvgQueryTable.Disp = " + (int)Disp[i] / ExecCount[i][ExecCount[i].Count / 2] + ", " +
+                            @"dbo.AvgQueryTable.query_plan = (SELECT qp.query_plan
+                            FROM sys.dm_exec_query_stats qs
+                            CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
+                            JOIN sys.dm_exec_cached_plans cp
+                            ON cp.plan_handle = qs.plan_handle
+                            WHERE qs.query_hash = dbo.AvgQueryTable.query_hash) --xml" +
                             "WHERE CAST(QueryText as Varchar(MAX))= '" + uniqueText[i] + "'";
                 //Console.WriteLine(DMVString);
                 using (SqlConnection connection = new SqlConnection(connectionString))

@@ -4,3 +4,9 @@ D:\ADBnew\MainProcess\bin\Debug\MainProcess.pdb
 D:\ADBnew\MainProcess\obj\Debug\MainProcess.csprojResolveAssemblyReference.cache
 D:\ADBnew\MainProcess\obj\Debug\MainProcess.exe
 D:\ADBnew\MainProcess\obj\Debug\MainProcess.pdb
+D:\GitHub\BDrepositry\bin\Debug\MainProcess.exe.config
+D:\GitHub\BDrepositry\bin\Debug\MainProcess.exe
+D:\GitHub\BDrepositry\bin\Debug\MainProcess.pdb
+D:\GitHub\BDrepositry\obj\Debug\MainProcess.csprojResolveAssemblyReference.cache
+D:\GitHub\BDrepositry\obj\Debug\MainProcess.exe
+D:\GitHub\BDrepositry\obj\Debug\MainProcess.pdb

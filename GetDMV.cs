@@ -18,6 +18,7 @@ namespace MainProcess
             public int ExecCount;
             public string QueryPlan;
             public byte[] QueryHash;
+            public string temp;
         }
         public List<TType> InfoStruct = new List<TType>();
         public void GetDMVinfo(string GetQueryInfo,string Method, string parametrs, string Table, string Extra)
@@ -32,6 +33,7 @@ namespace MainProcess
                               "JOIN sys.dm_exec_cached_plans cp " +
                               "ON cp.plan_handle = qs.plan_handle " +
                               "WHERE  (st.text like'%" + Method + "%%"+ parametrs+"%%" + Table + "%%" + Extra + "%' AND st.text NOT like '%st.text%')";
+
             //Console.WriteLine(DMVString);
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -50,15 +52,18 @@ namespace MainProcess
                         Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader[3]);
                         Console.WriteLine("");
                         newTType.query_hash = reader[0].ToString();
-                        newTType.QueryText  = reader[1].ToString();
-                        newTType.CPUTime = Int32.Parse(reader[2].ToString()) ;
+                        newTType.QueryText = reader[1].ToString();
+                        newTType.CPUTime = Int32.Parse(reader[2].ToString());
                         newTType.ObjType = reader[3].ToString();
                         newTType.ExecCount = Int32.Parse(reader[4].ToString());
                         newTType.QueryPlan = reader[5].ToString();
                         newTType.QueryHash = (byte[])reader[6];
-
-                        InfoStruct.Add(newTType);
-                        StructCount++;
+                        newTType.temp = reader[6].ToString();
+                        if (newTType.ObjType != "Adhoc")
+                        { 
+                            InfoStruct.Add(newTType);
+                            StructCount++;
+                        }
                     }
 
                     Console.ForegroundColor = ConsoleColor.Green;
