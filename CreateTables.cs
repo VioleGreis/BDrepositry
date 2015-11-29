@@ -9,6 +9,8 @@ namespace MainProcess
 {
     class CreateTables
     {
+        /// Ну дела
+        /// </summary>
         public static void TablesCreate()
         {
             string connectionString = @"Data Source=(local)\SERVER2012;
