@@ -1,0 +1,6 @@
+D:\ADBnew\MainProcess\bin\Debug\MainProcess.exe.config
+D:\ADBnew\MainProcess\bin\Debug\MainProcess.exe
+D:\ADBnew\MainProcess\bin\Debug\MainProcess.pdb
+D:\ADBnew\MainProcess\obj\Debug\MainProcess.csprojResolveAssemblyReference.cache
+D:\ADBnew\MainProcess\obj\Debug\MainProcess.exe
+D:\ADBnew\MainProcess\obj\Debug\MainProcess.pdb
